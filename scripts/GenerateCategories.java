@@ -4,6 +4,7 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.regex.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 自動生成 GitHub Pages 分類目錄的 Java 腳本
@@ -12,6 +13,16 @@ import java.util.stream.Collectors;
 public class GenerateCategories {
     
     private static final String DOCS_DIR = "docs";
+    private static final List<String> TOPIC_LIST;
+
+    static {
+        try {
+            TOPIC_LIST = Stream.of(FileUtil.readContent(Path.of(DOCS_DIR, ".order")).split("\n")).map(String::trim).toList();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private static final String INDEX_FILE = "docs/index.md";
     private static final Pattern KEYWORD_PATTERN = Pattern.compile("<!--關鍵字:\\s*(.+?)-->", Pattern.DOTALL);
     private static final Pattern TITLE_PATTERN = Pattern.compile("^title:\\s*(.+)$", Pattern.MULTILINE);
@@ -41,7 +52,8 @@ public class GenerateCategories {
                 List<Document> docs = entry.getValue();
                 System.out.println("  - " + category + ": " + docs.size() + " files");
                 for (Document doc : docs) {
-                    System.out.println("    * " + doc.title + " (keywords: " + doc.keywords + ")");
+                    updateExtension(doc);
+                    System.out.println("    * " + doc.title + " (keywords: " + doc.keywords + ")A");
                 }
             }
             
@@ -68,19 +80,41 @@ public class GenerateCategories {
             return categories;
         }
         
-        // 遍歷所有 .md 文件
-        Files.walk(docsPath)
-            .filter(path -> path.toString().endsWith(".md"))
-            .filter(path -> !path.getFileName().toString().equals("index.md"))
-            .forEach(path -> {
-                try {
-                    processMarkdownFile(path, categories);
-                } catch (IOException e) {
-                    System.err.println("Error reading file " + path + ": " + e.getMessage());
-                }
-            });
+        // 依照目錄下.order紀錄的目錄名取得個別的index.md檔，從中取得檔案資訊
+        for (String topic : TOPIC_LIST) {
+            List<String> rootOrder = Stream.of(FileUtil.readContent(Paths.get(DOCS_DIR, topic, ".order")).split("\n")).map(String::trim).toList();
+            for (String folderName : rootOrder) {
+                processMarkdownFile(Paths.get(DOCS_DIR, topic, folderName, "index.md"), categories);
+            }
+        }
         
         return categories;
+    }
+
+    private static void updateExtension(Document doc) throws IOException {
+        Path index = Path.of(DOCS_DIR, doc.path);
+        Path parent = index.getParent();
+        Path order = Path.of(parent.toString(), ".order");
+
+        if (!Files.exists(order)) {
+            System.out.println(order.toString());
+            return;
+        }
+
+        List<String> subpageList = Stream.of(FileUtil.readContent(order).split("\n")).map(String::trim).filter(s -> !s.isEmpty()).toList();
+
+        String originContent = FileUtil.readContent(index);
+
+        String newExtension = "<!--Extension Start-->\n";
+        for (String subpage : subpageList) {
+            newExtension += "1. [" + subpage + "](./" + subpage + ")\n";
+        }
+        newExtension += "<!--Extension End-->";
+
+        originContent = originContent.substring(0, originContent.indexOf("<!--Extension Start-->"))
+                + newExtension
+                + originContent.substring(originContent.indexOf("<!--Extension End-->") + "<!--Extension End-->".length());
+        Files.writeString(index, originContent, StandardCharsets.UTF_8);
     }
     
     /**

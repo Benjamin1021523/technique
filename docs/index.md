@@ -11,9 +11,9 @@ title: 我的文件首頁
 <details>
 <summary><strong>[java] 分類</strong></summary>
 
-- **[[java] 多端口接收請求](java/多端口接收請求.md)**
+- **[[java] 多端口接收請求](java/多端口接收請求/index.md)**
   - 關鍵字: `spring boot`, `undertow`, `port設定`
-- **[[java] 必填欄位的檢查](java/必填欄位的檢查.md)**(未完成)
+- **[[java] 必填欄位的檢查](java/必填欄位檢查/index.md)**
   - 關鍵字: `spring boot`, `spring-validation`, `必填欄位`
 
 </details>
