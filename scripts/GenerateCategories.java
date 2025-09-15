@@ -104,6 +104,9 @@ public class GenerateCategories {
         List<String> subpageList = Stream.of(FileUtil.readContent(order).split("\n")).map(String::trim).filter(s -> !s.isEmpty()).toList();
 
         String originContent = FileUtil.readContent(index);
+        if (!originContent.contains("<!--Extension Start-->") || !originContent.contains("<!--Extension End-->")) {
+            return;
+        }
 
         String newExtension = "<!--Extension Start-->\n";
         for (String subpage : subpageList) {
