@@ -55,9 +55,7 @@ public class CreateUserInput {
 }
 ```
 
-使用`@Valid`註解會自動觸發validation檢查，如果檢查失敗會拋出`MethodArgumentNotValidException`
-
-### 常用的validation註解
+### 常用的validation註解(annotation)
 
 | 註解 | 用途                         | 範例 |
 |------|----------------------------|------|
@@ -71,41 +69,12 @@ public class CreateUserInput {
 
 其他annotation可以查詢library下的`jakarta.validation.constraints`內的class
 
-## 全域異常處理
+## 結論：使用spring-validation的好處
 
-為了統一處理validation錯誤，可以建立全域異常處理器
-
-```java
-@RestControllerAdvice
-@Slf4j
-public class GlobalExceptionHandler {
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationException(
-            MethodArgumentNotValidException ex) {
-        
-        Map<String, Object> response = new HashMap<>();
-        List<String> errors = new ArrayList<>();
-        
-        ex.getBindingResult().getFieldErrors().forEach(error -> {
-            errors.add(error.getField() + ": " + error.getDefaultMessage());
-        });
-        
-        response.put("message", "參數驗證失敗");
-        response.put("errors", errors);
-        
-        log.warn("參數驗證失敗: {}", errors);
-        
-        return ResponseEntity.badRequest().body(response);
-    }
-}
-```
-
-## 使用的好處
-
-* 提供統一的錯誤回應格式
-* 透過避免新增手動檢查參數的程式碼，減少重複程式
-* 增加可讀性，後續維護時可從傳入物件的欄位確認此API參數的規則。
+* 避免在程式寫大量if else逐一檢查欄位，減少漏掉的可能性
+* 減少重複程式，可以透過使用同樣的annotation定義相同的檢查
+* 進一步強化物件的分工，將傳入的邏輯與傳入欄位寫在一塊，增加可讀性
+* 可以透過定義handler指定欄位檢查失敗時API回傳的格式和log(後續補充)
 
 <!--Finish-->
 
