@@ -97,5 +97,4 @@ public class ExampleClass {
 
 ### 深入探討
 
-<iframe src="./BiMap-必定一對一的map結構.md" width="600" height="400"></iframe>
-
+待續

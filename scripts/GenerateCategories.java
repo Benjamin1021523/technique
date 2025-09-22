@@ -53,7 +53,7 @@ public class GenerateCategories {
                 System.out.println("  - " + category + ": " + docs.size() + " files");
                 for (Document doc : docs) {
                     updateExtension(doc);
-                    System.out.println("    * " + doc.title + " (keywords: " + doc.keywords + ")A");
+                    System.out.println("    * " + doc.title + " (keywords: " + doc.keywords + ")");
                 }
             }
             
@@ -195,22 +195,29 @@ public class GenerateCategories {
             
             markdown.append("<details>\n");
             markdown.append("<summary><strong>[").append(category).append("] 分類</strong></summary>\n\n");
-            
-            // 按標題排序
-            docs.sort(Comparator.comparing(doc -> doc.title));
-            
-            for (Document doc : docs) {
-                markdown.append("- **[[").append(category).append("] ").append(doc.title)
-                    .append("](").append(doc.path).append(")**");
-                if (!doc.isFinish) {
-                    markdown.append("(未完成)");
+
+            if (!docs.isEmpty()) {
+                markdown.append("<ul>\n");
+
+                final String liTemplate = """
+                          <li>
+                            <a href="$Path">[$Category] $Title</a>$NotFinish
+                            <ul>
+                              <li>關鍵字: $Keyword</li>
+                            </ul>
+                          </li>
+                        """;
+
+                for (Document doc : docs) {
+                    String liContent = liTemplate
+                            .replace("$Path", doc.path.replace("index.md", ""))
+                            .replace("$Category", category)
+                            .replace("$Title", doc.title)
+                            .replace("$NotFinish", doc.isFinish ? "" : "(未完成)")
+                            .replace("$Keyword", String.join(", ", doc.keywords.stream().map(s -> String.format("<code>%s</code>", s)).toList()));
+                    markdown.append(liContent);
                 }
-                markdown.append("\n");
-                
-                if (!doc.keywords.isEmpty()) {
-                    String keywordsStr = String.join("`, `", doc.keywords);
-                    markdown.append("  - 關鍵字: `").append(keywordsStr).append("`\n");
-                }
+                markdown.append("</ul>\n");
             }
             
             markdown.append("\n</details>\n\n");

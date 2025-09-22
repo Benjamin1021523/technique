@@ -11,10 +11,26 @@ title: 我的文件首頁
 <details>
 <summary><strong>[java] 分類</strong></summary>
 
-- **[[java] 多端口接收請求](java/多端口接收請求/index.md)**
-  - 關鍵字: `spring boot`, `undertow`, `port設定`
-- **[[java] 必填欄位檢查](java/必填欄位檢查/index.md)**
-  - 關鍵字: `spring boot`, `spring-validation`, `必填欄位`
+<ul>
+  <li>
+    <a href="java/多端口接收請求/">[java] 多端口接收請求</a>
+    <ul>
+      <li>關鍵字: <code>spring boot</code>, <code>undertow</code>, <code>port設定</code></li>
+    </ul>
+  </li>
+  <li>
+    <a href="java/必填欄位檢查/">[java] 必填欄位檢查</a>
+    <ul>
+      <li>關鍵字: <code>spring boot</code>, <code>spring-validation</code>, <code>必填欄位</code></li>
+    </ul>
+  </li>
+  <li>
+    <a href="java/Guava研究紀錄/">[java] Guava簡介</a>(未完成)
+    <ul>
+      <li>關鍵字: <code>gauva</code>, <code>資料結構</code></li>
+    </ul>
+  </li>
+</ul>
 
 </details>
 
