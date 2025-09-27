@@ -184,7 +184,7 @@ public class ExampleClass {
 </details>
 
 <details>
-<summary>Multimaps.asMap(Multimap) <b>謹慎使用！</b></summary>
+<summary>Multimaps.asMap <b>謹慎使用！</b></summary>
 
 Multimaps.asMap可以將一個`Multimap<K, V>`轉為`Map<K, Collection<V>>`，Collection具體是哪一種端看Multimap建立時的類型
 
@@ -207,4 +207,21 @@ Multimap不是標準的物件，無法序列化。因此如Gson和Jackson等套�
 此時使用asMap就能得到看起來是Map的物件，照著實作的資料結構產生json字串
 
 總而言之，asMap產生的Map請避免用於修改，當作唯讀的物件使用就好，因此個人建議 **雖然asMap建立的Map會因為`filter view`的特性和Multimap更新的內容同步，但是最好還是要用再呼叫asMap，不要增加誤用的機會**。
+</details>
+
+<details>
+<summary>Multimaps.filterXXX</summary>
+
+這段說明包含了`filterKeys()`和`filterValues()`，兩種方法傳的參數幾乎一樣，傳入一個Multimap物件，再加上`com.google.common.base.Predicate`或是lambda物件指定過濾資料的規則。只不過一個是過濾key，一個是過濾value
+
+過濾之後的資料會回以同樣的Multimap物件類型回傳，就像前面說的`filtered view`和原本的物件共用儲存空間，你可以更新任一方達到資料同步
+
+推薦的使用方法是定義一個函式接收Multimap參數，作為其中處理邏輯時的讀取資料，像這樣<br>
+``public void completeData(Multimap<String, String> viewMultimap, List<MyData> dataList)``<br>
+可以使用不同的條件過濾Multimap之後傳進去，對函式來說他都是同樣的用法，查詢Multimap的資料確認有無，也不用知道你的過濾方式是什麼。<br>
+做到情境邏輯分開處理的同時，也能共用資料的處理邏輯。
+
+此外，搭配前面的`entries()`方法的話就可以先過濾再以一維結構輕易的逐一取得資料。
+
+目前還沒有實際在專案上用過，但是值得期待。
 </details>
