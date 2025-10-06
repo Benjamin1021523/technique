@@ -167,61 +167,61 @@ public class ExampleClass {
 
 除此之外，Multimap某key的元素被刪到沒有的時候，那個key會自動被移除，從keySet()也看不到。
 
-後續介紹函式會提到的filter類功能可以篩選key或value的值回傳部分的Multimap，看似是新的物件實際上是個`filtered view`，會和原本的Multimap同步更新
+深入探討時會介紹函式會提到的filter類功能可以篩選key或value的值回傳部分的Multimap，看似是新的物件實際上是個`filtered view`，會和原本的Multimap同步更新
 
-### 好用函式
+### 深入探討
 
-<details>
-<summary>Multimap.entries()</summary>
+待續
 
-可以想像Multimap會是個二維結構，如果要依序經過每個key底下value的每個元素，傳統的map需要經過兩層迴圈
+## RangeMap-用物件管理範圍的比較條件
 
-`Map<Long, Set<Long>>`使用`Map.entrySet()`取得key value的對應，再依序取得每個value(`Set<String>`)裡面的每個元素
+RangeMap是一個key value結構，但是並沒有繼承Map，而且key會是經過Range包裹的物件，物件本身必須是可比較大小，可區分範圍的
 
-`HashMultimap<Long, Long>`使用Multimap.entries()可以得到key對應value當中每個元素的entry，依照key的順序與value的順序組成
+從RangeMap透過get傳入key的值(就像一般Map的用法)，並不是「取得相同key的value」而是「取得符合條件範圍的key的value」
 
-等同把這個二維結構拉平為一維結構
-</details>
+舉個例子，以成績和等第的關係為例，某範圍內的分數都是相同的區間，使用RangeMap可以這樣寫
 
-<details>
-<summary>Multimaps.asMap <b>謹慎使用！</b></summary>
-
-Multimaps.asMap可以將一個`Multimap<K, V>`轉為`Map<K, Collection<V>>`，Collection具體是哪一種端看Multimap建立時的類型
-
-看似可以就此當map加入新的key value組合或是更新資料，但其實還是有些限制
-
-對已經存在的key使用add加入新的元素是可以的，但是想要插入新的key value是沒辦法的，畢竟前面也看到了，雖然底層是HashSet但是並不是加個HashSet就能讓Multimap這套規則正常運作。
 ```java
-// 這個可以有
-Multimaps.asMap(groupIdToPersonIdMap).get(2000L).add(106L);
-// 這個真的不行
-Set<Long> set = new HashSet<>();
-set.add(106L);
-Multimaps.asMap(groupIdToPersonIdMap).put(2002L, set);
+public class RangeMapTest {
+    public static void main(String[] args) {
+        RangeMap<Integer, String> scoreRatingMap = TreeRangeMap.create();
+
+        scoreRatingMap.put(Range.lessThan(60), "D");
+        scoreRatingMap.put(Range.closedOpen(60, 70), "C");
+        scoreRatingMap.put(Range.closedOpen(70, 80), "B");
+        scoreRatingMap.put(Range.closedOpen(80, 100), "A");
+        scoreRatingMap.put(Range.closed(90, 100), "A+");
+        scoreRatingMap.put(Range.greaterThan(100), "WTF");
+
+        System.out.println(scoreRatingMap.toString());
+        getRating(scoreRatingMap, 59);// D
+        getRating(scoreRatingMap, 60);// C
+        getRating(scoreRatingMap, 61);// C
+        getRating(scoreRatingMap, 70);// B
+        getRating(scoreRatingMap, 71);// B
+        getRating(scoreRatingMap, 80);// A
+        getRating(scoreRatingMap, 81);// A
+        getRating(scoreRatingMap, 90);// A+
+        getRating(scoreRatingMap, 100);// A+
+        getRating(scoreRatingMap, 101);// WTF
+        getRating(scoreRatingMap, 10000);// WTF
+    }
+
+    private static void getRating(RangeMap<Integer, String> scoreRatingMap, Integer score) {
+        String rating = scoreRatingMap.get(score);
+        System.out.println("get " + score + " rating: " + rating);
+    }
+}
 ```
 
-> 既然擔心混淆誤用，什麼時候適合使用asMap?
+``closed``是包含，``open``則不包含
 
-Multimap不是標準的物件，無法序列化。因此如Gson和Jackson等套件沒辦法將它轉為json
+### 上面這個例子也可以用if else完成，使用RangeMap有什麼好處？
 
-此時使用asMap就能得到看起來是Map的物件，照著實作的資料結構產生json字串
+首先是可讀性，可以在一行看到符合的範圍以及對應的值
 
-總而言之，asMap產生的Map請避免用於修改，當作唯讀的物件使用就好，因此個人建議 **雖然asMap建立的Map會因為`filter view`的特性和Multimap更新的內容同步，但是最好還是要用再呼叫asMap，不要增加誤用的機會**。
-</details>
+使用與switch較為接近的方式後續新增條件也方便擴展
 
-<details>
-<summary>Multimaps.filterXXX</summary>
+也可以透過``scoreRatingMap.subRangeMap(Range.closed(60, 100)``取得僅限及格範圍的RangeMap進行判斷以及更新
 
-這段說明包含了`filterKeys()`和`filterValues()`，兩種方法傳的參數幾乎一樣，傳入一個Multimap物件，再加上`com.google.common.base.Predicate`或是lambda物件指定過濾資料的規則。只不過一個是過濾key，一個是過濾value
-
-過濾之後的資料會回以同樣的Multimap物件類型回傳，就像前面說的`filtered view`和原本的物件共用儲存空間，你可以更新任一方達到資料同步
-
-推薦的使用方法是定義一個函式接收Multimap參數，作為其中處理邏輯時的讀取資料，像這樣<br>
-``public void completeData(Multimap<String, String> viewMultimap, List<MyData> dataList)``<br>
-可以使用不同的條件過濾Multimap之後傳進去，對函式來說他都是同樣的用法，查詢Multimap的資料確認有無，也不用知道你的過濾方式是什麼。<br>
-做到情境邏輯分開處理的同時，也能共用資料的處理邏輯。
-
-此外，搭配前面的`entries()`方法的話就可以先過濾再以一維結構輕易的逐一取得資料。
-
-目前還沒有實際在專案上用過，但是值得期待。
-</details>
+總地來講，RangeMap沒有太特別的超能力，用基礎java就能辦到，但是很方便，可以簡化程式寫法，用來當作函式傳參數的型別也可以增加可讀性
