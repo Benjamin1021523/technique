@@ -9,13 +9,27 @@ title: 我的文件首頁
 ## 技術文件目錄
 
 <details>
+<summary><strong>[git] 分類</strong></summary>
+
+<ul>
+  <li>
+    <a href="git/版本控制/">[git] git簡介&常用指令</a>
+    <ul>
+      <li>關鍵字: <code>git、版本控制</code></li>
+    </ul>
+  </li>
+</ul>
+
+</details>
+
+<details>
 <summary><strong>[java] 分類</strong></summary>
 
 <ul>
   <li>
     <a href="java/原生功能/">[java] java原生功能</a>
     <ul>
-      <li>關鍵字: <code>abstract</code>, <code>interface</code></li>
+      <li>關鍵字: <code>abstract</code>, <code>interface</code>, <code>casting</code></li>
     </ul>
   </li>
   <li>
