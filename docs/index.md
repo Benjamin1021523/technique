@@ -13,6 +13,12 @@ title: 我的文件首頁
 
 <ul>
   <li>
+    <a href="java/原生功能/">[java] java原生功能</a>
+    <ul>
+      <li>關鍵字: <code>abstract</code>, <code>interface</code></li>
+    </ul>
+  </li>
+  <li>
     <a href="java/多端口接收請求/">[java] 多端口接收請求</a>
     <ul>
       <li>關鍵字: <code>spring boot</code>, <code>undertow</code>, <code>port設定</code></li>
