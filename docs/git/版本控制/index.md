@@ -204,4 +204,21 @@ git reset <commit ID>
 4. **檢查狀態**: 先使用 `git status` 和 `git diff` 檢查變更再commit，確認是否有遺漏
    * 近年開發工具整合git功能做的很方便，也可以在介面上確認
 
+## 比較少見的使用情境
+
+### 切換remote目標到新的專案網址
+
+發生在調整專案網址，比方說把github的專案改推到git lab
+
+如果是原本clone別人的專案，後來fork到自己的帳號下也可以把本地clone下的專案同步到fork後的專案
+```bash
+# 修改remote網址，把origin改指向新的專案網址
+git remote set-url origin [新的網址]
+# 把當前分支推到origin
+git push
+# 把本地所有分支推上去
+git push -u origin --all
+```
+如果新專案是建個空殼的情況請分成兩段，先切到主分支`git push`單獨把主分支推上去，之後再執行`git push -u origin --all`把其他分支推上去，否則可能無法控制預設分支是哪一個
+
 <!--Finish-->
