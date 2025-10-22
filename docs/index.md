@@ -9,34 +9,6 @@ title: 我的文件首頁
 ## 技術文件目錄
 
 <details>
-<summary><strong>[docker] 分類</strong></summary>
-
-<ul>
-  <li>
-    <a href="docker/">[docker] Docker簡介</a>
-    <ul>
-      <li>關鍵字: <code>docker、容器化、虛擬機</code></li>
-    </ul>
-  </li>
-</ul>
-
-</details>
-
-<details>
-<summary><strong>[git] 分類</strong></summary>
-
-<ul>
-  <li>
-    <a href="git/">[git] git簡介&常用指令</a>
-    <ul>
-      <li>關鍵字: <code>git、版本控制</code></li>
-    </ul>
-  </li>
-</ul>
-
-</details>
-
-<details>
 <summary><strong>[java] 分類</strong></summary>
 
 <ul>
@@ -68,8 +40,33 @@ title: 我的文件首頁
 
 </details>
 
+<details>
+<summary><strong>[git] 分類</strong></summary>
+
+<ul>
+  <li>
+    <a href="git/">[git] git簡介&常用指令</a>
+    <ul>
+      <li>關鍵字: <code>git、版本控制</code></li>
+    </ul>
+  </li>
+</ul>
+
+</details>
+
+<details>
+<summary><strong>[docker] 分類</strong></summary>
+
+<ul>
+  <li>
+    <a href="docker/">[docker] Docker簡介</a>
+    <ul>
+      <li>關鍵字: <code>docker、容器化、虛擬機</code></li>
+    </ul>
+  </li>
+</ul>
+
+</details>
+
 
 <!--生成區域End-->
-
-## 其他頁面
-- [快速開始](guide.md)

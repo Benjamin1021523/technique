@@ -72,7 +72,7 @@ public class GenerateCategories {
      * 掃描 docs/ 目錄下的所有文件
      */
     private static Map<String, List<Document>> scanDocuments() throws IOException {
-        Map<String, List<Document>> categories = new TreeMap<>();
+        Map<String, List<Document>> categories = new LinkedHashMap<>();
         Path docsPath = Paths.get(DOCS_DIR);
         
         if (!Files.exists(docsPath)) {
@@ -97,7 +97,7 @@ public class GenerateCategories {
         Path order = Path.of(parent.toString(), ".order");
 
         if (!Files.exists(order)) {
-            System.out.println(order.toString());
+            System.out.println(order);
             return;
         }
 
