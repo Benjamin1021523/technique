@@ -76,7 +76,7 @@ COPY myapp-1.0.jar app.jar
 # 容器對外開放的port，當然前提是上面的jar啟動後會在這個port提供服務
 EXPOSE 8080
 
-# 指定容器啟動時的指令
+# 指定容器啟動時的指令，如果沒設定WORKDIR的話需要用絕對路徑的/app/app.jar才能執行
 ENTRYPOINT ["java", "-jar", "app.jar"]
 ```
 
@@ -108,7 +108,7 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 ## 如何讓容器讀取本機的檔案? 如何讓容器寫入資料到本機的檔案?
 
-使用-v或--volume將本機的目錄掛載到容器的特定路徑，建立對應，概念上就像把遠端主機的某個目錄掛載到自己電腦上變成K槽一樣的做法
+使用-v或--volume將本機的目錄或檔案掛載到容器的特定路徑，建立對應，概念上就像把遠端主機的某個目錄掛載到自己電腦上變成K槽一樣的做法
 
 比方說我在C槽建立了myapp資料夾，裡面有conf/和logs/兩個目錄分別用來存設定檔和紀錄檔
 
@@ -179,13 +179,63 @@ docker compose down --rmi all
 
 # 常見Q&A
 
-* 為什麼docker desktop已經安裝好了，使用docker指令卻沒辦法執行？
-  * 啟動docker desktop應用程式，這種情況可能是電腦上的docker engine沒有啟動。docker和git不一樣，安裝後需要程式有在背景運作才能使用。
-* 怎麼查到映像檔的基底作業系統？
-  * `docker inspect openjdk:17`: 查詢映像`openjdk:17`的資訊
+## docker desktop已經安裝好了，使用docker指令卻沒辦法執行？
+
+這種情況可能是電腦上的docker engine沒有啟動，請確認是否有啟動docker desktop應用程式。
+
+docker和git不一樣，安裝後需要程式有在背景運作才能使用。
+
+## 怎麼查到映像檔的基底作業系統？
+
+* `docker inspect openjdk:17`: 查詢映像`openjdk:17`的資訊
   * 可以查到作業系統的類型，還有其他啟動容器的資訊
-  * 如果要查具體哪一版linux的話就回歸linux的指令，查詢`/etc/os-release`檔案內容了
-* 啟動容器是成功了，但是顯示時間卻是UTC時間，要怎麼指定時區呢？
-  * 透過環境變數`-e TZ=Asia/Taipei`，TZ(time zone)指定時區為本地時間
+* 如果要查具體哪一版linux的話就回歸linux的指令，查詢`/etc/os-release`檔案內容了
+
+## 啟動容器是成功了，但是顯示時間卻是UTC時間，要怎麼指定時區呢？
+
+透過環境變數`-e TZ=Asia/Taipei`，TZ(time zone)指定時區為本地時間
+
+## 每次改程式之後都要重新打包映像檔太麻煩了，能不能簡單點？
+
+前面示範的`COPY myapp-1.0.jar app.jar`會在建立映像檔的時候把執行程式包進映像檔，看起來需要重新建立新的映像檔才能執行新的程式，我原本也是這樣以為的。
+
+但其實不是，只要用volume方式把本機的檔案掛載到映像檔內，把原本的檔案覆蓋就好，這種情況建立映像時不複製jar進來也可以。
+
+改完的Dockerfile會像這樣：
+
+```dockerfile
+# 指定基底映像
+FROM openjdk:17
+
+# 設定容器內的工作目錄，相當於使用指令CD，因此這行執行後操作路徑為容器中的/app
+WORKDIR /app
+
+# 容器對外開放的port，當然前提是上面的jar啟動後會在這個port提供服務
+EXPOSE 8080
+
+# 指定容器啟動時的指令，如果沒設定WORKDIR的話需要用絕對路徑的/app/app.jar才能執行
+ENTRYPOINT ["java", "-jar", "app.jar"]
+```
+
+雖然指定要讀取/app/app.jar但是容器內可能找不到這檔案，因此執行容器的指令或docker compose必須補上對應本機的檔案。
+
+``docker-compose.yml``的內容如下：
+
+```yaml
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: myapp:1.0
+    ports:
+      - "8080:8080"
+    environment:
+      - MYAPP_HOME=/app/myapp
+    volumes:
+      - C:\myapp:/app/myapp
+      # 最後加的這行綁定的不是目錄而是檔案，容器內執行的指令可以沿用app.jar
+      - C:\myapp\myapp-1.0.jar:/app/app.jar
+```
 
 <!--Finish-->
