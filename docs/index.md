@@ -42,6 +42,12 @@ title: 我的文件首頁
       <li>關鍵字: <code>Jackson</code>, <code>Gson</code></li>
     </ul>
   </li>
+  <li>
+    <a href="java/輸出執行記錄-Logback/">[java] 輸出執行記錄-Logback</a>
+    <ul>
+      <li>關鍵字: <code>logback</code>, <code>spring boot</code></li>
+    </ul>
+  </li>
 </ul>
 
 </details>
